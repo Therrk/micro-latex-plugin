@@ -25,9 +25,13 @@ function compile(filename)
 end
 
 function display(filename)
-	shell.JobStart("xpdf -rv " .. filename .. ".pdf", test,test,test, nil)
+	shell.JobStart("xpdf -rv -remote " .. filename .. " \"openFile("..filename..".pdf)\"", test,test,test, nil)
 	-- return display_errors
 end
 
 function test(std, userargs)
+end
+
+function isOpen(filename)
+	
 end
