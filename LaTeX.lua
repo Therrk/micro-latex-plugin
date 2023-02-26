@@ -20,13 +20,26 @@ function onBufPaneOpen(bp)
 end
 
 function compile(filename)
-	shell.ExecCommand("bash", "-c", "pdflatex -interaction=nonstopmode -file-line-error " .. filename .. ".tex | grep \"^\\./\"", "&")
+	errors = shell.ExecCommand("bash", "-c", "pdflatex -interaction=nonstopmode -file-line-error " .. filename .. ".tex | grep \"^\\./\"", "&")
+	-- buffer.ClearAllMessages()
+	message = shell.NewMessageAtLine("tex", "oh la la", 1, buffer.MTError)
+	buffer:AddMessages(message)
+	-- display_errors(errors)
 	-- return compil_errors
 end
 
 function display(filename)
 	shell.JobStart("xpdf -rv -remote " .. filename .. " \"openFile("..filename..".pdf)\"", test,test,test, nil)
 	-- return display_errors
+end
+
+function display_errors(errors)
+	for line in errors:gmatch("([^\n]*)\n?") do
+		_,_,line_number, message = string.find(line, "(%d+):(.*)")
+		if line_number==nil then
+			shell.NewMessageAtLine("tex", message, tonumber(line_number), MTError)
+		end
+	end
 end
 
 function test(std, userargs)
